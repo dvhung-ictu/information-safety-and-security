@@ -1,4 +1,5 @@
-body {
+.home {
+    width: 100%;
     height: 100vh;
     background-image: linear-gradient(to right, #DECBA4, #3E5151);
     display: flex;
