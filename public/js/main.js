@@ -143,8 +143,6 @@ function checkValidate(value) {
   } else {
     isValidate = validateValueZ62(value)
   }
-
-  console.log(isValidate)
   return isValidate
 }
 
@@ -246,21 +244,6 @@ function ChangeTypeZ() {
   const code= $('#textarea-code')
   const codeValidate = $('#code-validate')
 
-  let isEmptyKey = checkText(key)
-  if(isEmptyKey) {
-    let isKey = checkKey(key)
-    if(isKey) {
-      removeRed(keyLabel, key, keyValidate)
-      addGreen(keyLabel, key, keyValidate)
-    } else {
-      removeGreen(keyLabel, key, keyValidate)
-      addRed(keyLabel, key, keyValidate)
-    }
-  } else {
-    removeRed(keyLabel, key, keyValidate)
-    removeGreen(keyLabel, key, keyValidate)
-  }
-
   const typeValue = $('#type-encodeDecode').value
   if(typeValue == 'encode') {
     code.value = ''
@@ -292,6 +275,24 @@ function ChangeTypeZ() {
       removeGreen(codeLabel, code, codeValidate)
       removeRed(codeLabel, code, codeValidate)
     }
+  }
+
+  let isEmptyKey = checkText(key)
+  if(isEmptyKey) {
+    let isKey = checkKey(key)
+    if(isKey) {
+      removeRed(keyLabel, key, keyValidate)
+      addGreen(keyLabel, key, keyValidate)
+    } else {
+      removeGreen(keyLabel, key, keyValidate)
+      addRed(keyLabel, key, keyValidate)
+    }
+
+    keySubstitutionChange()
+  } else {
+    removeRed(keyLabel, key, keyValidate)
+    removeGreen(keyLabel, key, keyValidate)
+    resetPlaintextAndCode()
   }
 }
 
@@ -425,4 +426,99 @@ function copyPlaintext() {
   textAreaPlaintext.select();
   document.execCommand('copy')
   textAreaPlaintext.disabled = true
+}
+
+
+// Substitution Cipher JS
+function keySubstitutionChange() {
+  const keyLabel = $('#key-label')
+  const key = $('#key')
+  const keyValidate = $('#key-validate')
+  const keyValidateText = $('#key-validate-text')
+  let Zx = getZx()
+
+  const listkey = key.value.split('').sort()
+  const listLetter = Zx.split('').sort()
+
+  const isEqual  = JSON.stringify(listkey) === JSON.stringify(listLetter)
+  if(isEqual) {
+    removeRed(keyLabel, key, keyValidate)
+    addGreen(keyLabel, key, keyValidate)
+  } else {
+    removeGreen(keyLabel, key, keyValidate)
+    addRed(keyLabel, key, keyValidate)
+    keyValidateText.innerText = 'Valid key!!!'
+  }
+}
+
+function encodeAndDecodeSubstitutionCipher() {
+  const keyLabel = $('#key-label')
+  const key = $('#key')
+  const keyValidate = $('#key-validate')
+  const keyValidateText = $('#key-validate-text')
+
+  const plaintextLabel = $('#plaintext-label')
+  const plaintextTextarea = $('#textarea-plaintext')
+  const plaintextValidate = $('#plaintext-validate')
+  const plaintextValidateText = $('#plaintext-validate-text')
+
+  const codeLabel = $('#code-label')
+  const codeTextarea = $('#textarea-code')
+  const codeValidate = $('#code-validate')
+  const codeValidateText = $('#code-validate-text')
+
+  const value = $('#type-encodeDecode').value
+
+  let Zx = getZx()
+  const listkey = key.value.split('').sort()
+  const listLetter = Zx.split('').sort()
+  const isEqual  = JSON.stringify(listkey) === JSON.stringify(listLetter)
+
+  if(value == 'encode') {
+    if(isEqual) {
+      let plaintextCheck = checkText(plaintextTextarea)
+      if(plaintextCheck) {
+        if(checkValidate(plaintextTextarea.value)) {
+          let Zx = getZx()
+          let code = encodeSubstitutionCipher(plaintextTextarea, key, Zx)
+          codeTextarea.value = code
+        } else {
+          plaintextTextarea.focus()
+        }
+      } else {
+        plaintextTextarea.focus()
+        removeGreen(plaintextLabel, plaintextTextarea, plaintextValidate)
+        addRed(plaintextLabel, plaintextTextarea, plaintextValidate)
+        plaintextValidateText.innerText = 'Please enter plaintext@@@'
+      }
+    } else {
+      key.focus()
+      removeRed(keyLabel, key, keyValidate, keyValidateText)
+      addRed(keyLabel, key, keyValidate, keyValidateText)
+      keyValidateText.innerText = 'Please enter key@@@'
+    }
+  } else {
+    if(isEqual) {
+      let codeCheck = checkText(codeTextarea)
+      if(codeCheck) {
+        if(checkValidate(codeTextarea.value)) {
+          let Zx = getZx()
+          let plaintext = decodeSubstitutionCipher(codeTextarea, key, Zx)
+          plaintextTextarea.value = plaintext
+        } else {
+          codeTextarea.focus()
+        }
+      } else {
+        codeTextarea.focus()
+        removeGreen(codeLabel, codeTextarea, codeValidate)
+        addRed(codeLabel, codeTextarea, codeValidate)
+        codeValidateText.innerText = 'Please enter code@@@'
+      }
+    } else {
+      key.focus()
+      removeGreen(keyLabel, key, keyValidate, keyValidateText)
+      addRed(keyLabel, key, keyValidate, keyValidateText)
+      keyValidateText.innerText = 'Please enter key@@@'
+    }
+  }
 }
