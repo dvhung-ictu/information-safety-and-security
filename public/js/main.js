@@ -1,6 +1,10 @@
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 
+const z26 = 'abcdefghijklmnopqrstuvwxyz'
+const z52 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const z62 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
 function toggleModal() {
   $('#btn-modal').classList.toggle('hidden')
   $('#modal').classList.toggle('hidden')
@@ -50,6 +54,26 @@ function addGreen(keyLabel, key, keyValidate) {
   keyValidate.classList.remove('hidden')
 }
 
+function getZx() {
+  const typeZ = $('#type-z')
+  let Zx = z26
+  switch (typeZ.value) {
+      case 'z26':
+          Zx = z26
+          break;
+      case 'z52':
+          Zx = z52
+          break;
+      case 'z62':
+          Zx = z62
+          break;
+      default:
+          break;
+  }
+
+  return Zx
+}
+
 //
 function keyChange() {
   const keyLabel = $('#key-label')
@@ -57,10 +81,12 @@ function keyChange() {
   const keyValidate = $('#key-validate')
   const keyValidateText = $('#key-validate-text')
 
+  const lengthZx = getZx().length
+
   if(key.value == '') { // Key rong
     removeRed(keyLabel, key, keyValidate)
     removeGreen(keyLabel, key, keyValidate)
-  } else if(key.value >= 0 && key.value <= 25) { // key hop le
+  } else if(key.value >= 0 && key.value < lengthZx) { // key hop le
     removeRed(keyLabel, key, keyValidate)
     addGreen(keyLabel, key, keyValidate)
     keyValidateText.innerText = 'Valid Key!!!'
@@ -71,10 +97,10 @@ function keyChange() {
   }
 }
 
-function validPlaintextValue(plaintext) {
+function validateValueZ26(value) {
   let isCheck = true
-  for (let i = 0; i < plaintext.length; i++) {
-    if(plaintext.charAt(i) >= 'a' && plaintext.charAt(i) <= 'z' || plaintext.charAt(i) == '\n' || plaintext.charAt(i) == ' ') {
+  for (let i = 0; i < value.length; i++) {
+    if(value.charAt(i) >= 'a' && value.charAt(i) <= 'z' || value.charAt(i) == '\n' || value.charAt(i) == ' ') {
       isCheck = true
     } else {
       return false
@@ -83,7 +109,46 @@ function validPlaintextValue(plaintext) {
   return isCheck
 }
 
-function plaintextChange(event) {
+function validateValueZ52(value) {
+  let isCheck = true
+  for (let i = 0; i < value.length; i++) {
+    if(value.charAt(i) >= 'a' && value.charAt(i) <= 'z' || value.charAt(i) >= 'A' && value.charAt(i) <= 'Z' || value.charAt(i) == '\n' || value.charAt(i) == ' ') {
+      isCheck = true
+    } else {
+      return false
+    }
+  }
+  return isCheck
+}
+
+function validateValueZ62(value) {
+  let isCheck = true
+  for (let i = 0; i < value.length; i++) {
+    if(value.charAt(i) >= 'a' && value.charAt(i) <= 'z' || value.charAt(i) >= 'A' && value.charAt(i) <= 'Z' || value.charAt(i) >= '0' && value.charAt(i) <= '9' || value.charAt(i) == '\n' || value.charAt(i) == ' ') {
+      isCheck = true
+    } else {
+      return false
+    }
+  }
+  return isCheck
+}
+
+function checkValidate(value) {
+  let isValidate = true
+  let Zx = getZx()
+  if(Zx == z26) {
+    isValidate = validateValueZ26(value)
+  } else if (Zx == z52) {
+    isValidate = validateValueZ52(value)
+  } else {
+    isValidate = validateValueZ62(value)
+  }
+
+  console.log(isValidate)
+  return isValidate
+}
+
+function plaintextChange() {
   const plaintextLabel = $('#plaintext-label')
   const plaintext = $('#textarea-plaintext')
   const plaintextValidate = $('#plaintext-validate')
@@ -91,7 +156,7 @@ function plaintextChange(event) {
 
   let plaintextValue = plaintext.value
 
-  if(validPlaintextValue(plaintextValue)) { // Plaintext hop le
+  if(checkValidate(plaintextValue)) { // Plaintext hop le
     if(plaintext.value == '') {
       removeRed(plaintextLabel, plaintext, plaintextValidate)
       removeGreen(plaintextLabel, plaintext, plaintextValidate)
@@ -105,6 +170,48 @@ function plaintextChange(event) {
     addRed(plaintextLabel, plaintext, plaintextValidate)
     plaintextValidateText.innerText = 'Invalid Plaintext@@@'
   }
+}
+
+function codeChange() {
+  const codeLabel = $('#code-label')
+  const code = $('#textarea-code')
+  const codeValidate = $('#code-validate')
+  const codeValidateText = $('#code-validate-text')
+
+  let codeValue = code.value
+
+  if(checkValidate(codeValue)) { // Code hop le
+    if(code.value == '') {
+      removeRed(codeLabel, code, codeValidate)
+      removeGreen(codeLabel, code, codeValidate)
+    } else {
+      removeRed(codeLabel, code, codeValidate)
+      addGreen(codeLabel, code, codeValidate)
+      codeValidateText.innerText = 'Valid Code!!!'
+    }
+  } else { // Code khong hop le
+    removeGreen(codeLabel, code, codeValidate)
+    addRed(codeLabel, code, codeValidate)
+    codeValidateText.innerText = 'Invalid Code@@@'
+  }
+}
+
+function resetPlaintextAndCode() {
+  const plaintextLabel = $('#plaintext-label')
+  const plaintextTextarea = $('#textarea-plaintext')
+  const plaintextValidate = $('#plaintext-validate')
+
+  const codeLabel = $('#code-label')
+  const codeTextarea = $('#textarea-code')
+  const codeValidate = $('#code-validate')
+
+  plaintextTextarea.value = ''
+  removeRed(plaintextLabel, plaintextTextarea, plaintextValidate)
+  removeGreen(plaintextLabel, plaintextTextarea, plaintextValidate)
+
+  codeTextarea.value = ''
+  removeRed(codeLabel, codeTextarea, codeValidate)
+  removeGreen(codeLabel, codeTextarea, codeValidate)
 }
 
 function changeSynthesis(type1, type2, textarea1, textarea2, btn1, btn2) {
@@ -126,6 +233,68 @@ function changeSynthesis(type1, type2, textarea1, textarea2, btn1, btn2) {
     btn2.classList.toggle('hidden')
 }
 
+function ChangeTypeZ() {
+  const keyLabel = $('#key-label')
+  const key = $('#key')
+  const keyValidate = $('#key-validate')
+
+  const plaintextLabel = $('#plaintext-label')
+  const plaintext = $('#textarea-plaintext')
+  const plaintextValidate = $('#plaintext-validate')
+
+  const codeLabel = $('#code-label')
+  const code= $('#textarea-code')
+  const codeValidate = $('#code-validate')
+
+  let isEmptyKey = checkText(key)
+  if(isEmptyKey) {
+    let isKey = checkKey(key)
+    if(isKey) {
+      removeRed(keyLabel, key, keyValidate)
+      addGreen(keyLabel, key, keyValidate)
+    } else {
+      removeGreen(keyLabel, key, keyValidate)
+      addRed(keyLabel, key, keyValidate)
+    }
+  } else {
+    removeRed(keyLabel, key, keyValidate)
+    removeGreen(keyLabel, key, keyValidate)
+  }
+
+  const typeValue = $('#type-encodeDecode').value
+  if(typeValue == 'encode') {
+    code.value = ''
+    let isEmptyPlaintext = checkText(plaintext)
+    if(isEmptyPlaintext) {
+      if(checkValidate(plaintext.value)) {
+        removeRed(plaintextLabel, plaintext, plaintextValidate)
+        addGreen(plaintextLabel, plaintext, plaintextValidate)
+      } else {
+        removeGreen(plaintextLabel, plaintext, plaintextValidate)
+        addRed(plaintextLabel, plaintext, plaintextValidate)
+      }
+    } else {
+      removeGreen(plaintextLabel, plaintext, plaintextValidate)
+      removeRed(plaintextLabel, plaintext, plaintextValidate)
+    }
+  } else {
+    plaintext.value = ''
+    let isEmptyCode = checkText(code)
+    if(isEmptyCode) {
+      if(checkValidate(code.value)) {
+        removeRed(codeLabel, code, codeValidate)
+        addGreen(codeLabel, code, codeValidate)
+      } else {
+        removeGreen(codeLabel, code, codeValidate)
+        addRed(codeLabel, code, codeValidate)
+      }
+    } else {
+      removeGreen(codeLabel, code, codeValidate)
+      removeRed(codeLabel, code, codeValidate)
+    }
+  }
+}
+
 //
 function changeSelected() {
   const plaintext = $('#plaintext')
@@ -135,8 +304,9 @@ function changeSelected() {
   const btnCopyPlaintext = $('#copy-plaintext')
   const btnCopyCode = $('#copy-code')
 
-  const value = $('#countries').value
+  const value = $('#type-encodeDecode').value
 
+  resetPlaintextAndCode()
   if(value == 'encode') {
     changeSynthesis(plaintext, code, plaintextTextarea, codeTextarea, btnCopyPlaintext, btnCopyCode)
   } else {
@@ -150,12 +320,13 @@ function checkText(text) {
 }
 
 function checkKey(key) {
-  if(key.value >= 0 && key.value <= 25) return true
+  let lengthZx = getZx().length
+  if(key.value >= 0 && key.value < lengthZx) return true
   return false
 }
 
-//
-function encodeAndDecode() {
+// ShiftCipher
+function encodeAndDecodeShiftCipher() {
   const keyLabel = $('#key-label')
   const key = $('#key')
   const keyValidate = $('#key-validate')
@@ -166,9 +337,12 @@ function encodeAndDecode() {
   const plaintextValidate = $('#plaintext-validate')
   const plaintextValidateText = $('#plaintext-validate-text')
 
+  const codeLabel = $('#code-label')
   const codeTextarea = $('#textarea-code')
+  const codeValidate = $('#code-validate')
+  const codeValidateText = $('#code-validate-text')
 
-  const value = $('#countries').value
+  const value = $('#type-encodeDecode').value
 
   let isEmptyKey = checkText(key)
 
@@ -178,23 +352,60 @@ function encodeAndDecode() {
       if(validKey) {
         let plaintextCheck = checkText(plaintextTextarea)
         if(plaintextCheck) {
-          let code = encodeShiftCipher(plaintextTextarea, key)
-          codeTextarea.value = code
+          if(checkValidate(plaintextTextarea.value)) {
+            let Zx = getZx()
+            let code = encodeShiftCipher(plaintextTextarea, key, Zx)
+            codeTextarea.value = code
+          } else {
+            plaintextTextarea.focus()
+          }
         } else {
           plaintextTextarea.focus()
-          addRed(plaintextLabel, plaintextTextarea, plaintextValidate, plaintextValidateText)
+          removeGreen(plaintextLabel, plaintextTextarea, plaintextValidate)
+          addRed(plaintextLabel, plaintextTextarea, plaintextValidate)
           plaintextValidateText.innerText = 'Please enter plaintext@@@'
         }
       } else {
         key.focus()
+        removeRed(keyLabel, key, keyValidate, keyValidateText)
         addRed(keyLabel, key, keyValidate, keyValidateText)
       }
     } else {
       key.focus()
+      removeRed(keyLabel, key, keyValidate, keyValidateText)
       addRed(keyLabel, key, keyValidate, keyValidateText)
       keyValidateText.innerText = 'Please enter key@@@'
     }
   } else {
+    if(isEmptyKey) {
+      let validKey = checkKey(key)
+      if(validKey) {
+        let codeCheck = checkText(codeTextarea)
+        if(codeCheck) {
+          if(checkValidate(codeTextarea.value)) {
+            let Zx = getZx()
+            let plaintext = decodeShiftCipher(codeTextarea, key, Zx)
+            plaintextTextarea.value = plaintext
+          } else {
+            codeTextarea.focus()
+          }
+        } else {
+          codeTextarea.focus()
+          removeGreen(codeLabel, codeTextarea, codeValidate)
+          addRed(codeLabel, codeTextarea, codeValidate)
+          codeValidateText.innerText = 'Please enter code@@@'
+        }
+      } else {
+        key.focus()
+        removeGreen(keyLabel, key, keyValidate, keyValidateText)
+        addRed(keyLabel, key, keyValidate, keyValidateText)
+      }
+    } else {
+      key.focus()
+      removeGreen(keyLabel, key, keyValidate, keyValidateText)
+      addRed(keyLabel, key, keyValidate, keyValidateText)
+      keyValidateText.innerText = 'Please enter key@@@'
+    }
   }
 }
 
@@ -205,4 +416,13 @@ function copyCode() {
   textAreaCode.select();
   document.execCommand('copy')
   textAreaCode.disabled = true
+}
+
+function copyPlaintext() {
+  const textAreaPlaintext = $('#textarea-plaintext')
+
+  textAreaPlaintext.disabled = false
+  textAreaPlaintext.select();
+  document.execCommand('copy')
+  textAreaPlaintext.disabled = true
 }

@@ -41,12 +41,26 @@
         <div class="dropdown">
           <select
             style="outline: none"
-            id="countries"
+            id="type-encodeDecode"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-44 py-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onchange="changeSelected()"
           >
             <option select value="encode">Encode</option>
             <option value="decode">Decode</option>
+          </select>
+        </div>
+
+        <div class="dropdown">
+          <select
+            style="outline: none"
+            id="type-z"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-44 py-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            onchange="ChangeTypeZ()"
+          >
+            <option select value="z26">Vành Z26 (a->z)</option>
+            <option value="z52">Vành Z52 (a->z, A->Z)</option>
+            <option value="z62">Vành Z62 (a->z, A->Z, 0->9)</option>
+            <option value=""></option>
           </select>
         </div>
       </div>
@@ -86,6 +100,7 @@
                 type="button"
                 class="inline-block px-6 py-2 border-2 border-purple-600 text-purple-600 font-medium text-xs leading-tight uppercase rounded-full hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out hidden"
                 id="copy-plaintext"
+                onclick="copyPlaintext()"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +123,7 @@
               rows="6"
               style="outline: none"
               class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              onkeyup="plaintextChange(event)"
+              onkeyup="plaintextChange()"
               placeholder="Ex: Hello World with HeroesPluss"
             ></textarea>
             <p class="mt-2 text-sm hidden" id="plaintext-validate">
@@ -122,7 +137,7 @@
             <button
               type="button"
               class="bg-transparent hover:bg-purple-500 text-purple-700 font-semibold hover:text-white py-2 px-4 border border-purple-500 hover:border-transparent rounded"
-              onclick="encodeAndDecode()"
+              onclick="encodeAndDecodeShiftCipher()"
             >
               Encode
             </button>
@@ -132,6 +147,7 @@
             <div class="flex justify-between items-center mb-2">
               <label
                 for="code"
+                id="code-label"
                 class="block text-sm font-medium text-gray-900 dark:text-gray-400"
                 >Code</label
               >
@@ -190,8 +206,14 @@
               rows="6"
               style="outline: none"
               class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              onkeyup="codeChange()"
               disabled
             ></textarea>
+            <p class="mt-2 text-sm hidden" id="code-validate">
+              <span class="font-medium" id="code-validate-text"
+                >Invalid Code@@@</span
+              >
+            </p>
           </div>
         </div>
       </div>
