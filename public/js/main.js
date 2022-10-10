@@ -231,7 +231,7 @@ function changeSynthesis(type1, type2, textarea1, textarea2, btn1, btn2) {
     btn2.classList.toggle('hidden')
 }
 
-function ChangeTypeZ() {
+function changeTypeZ() {
   const keyLabel = $('#key-label')
   const key = $('#key')
   const keyValidate = $('#key-validate')
@@ -277,22 +277,26 @@ function ChangeTypeZ() {
     }
   }
 
-  let isEmptyKey = checkText(key)
-  if(isEmptyKey) {
-    let isKey = checkKey(key)
-    if(isKey) {
-      removeRed(keyLabel, key, keyValidate)
-      addGreen(keyLabel, key, keyValidate)
-    } else {
-      removeGreen(keyLabel, key, keyValidate)
-      addRed(keyLabel, key, keyValidate)
-    }
+  if(key) {
+    let isEmptyKey = checkText(key)
+    if(isEmptyKey) {
+      let isKey = checkKey(key)
+      if(isKey) {
+        removeRed(keyLabel, key, keyValidate)
+        addGreen(keyLabel, key, keyValidate)
+      } else {
+        removeGreen(keyLabel, key, keyValidate)
+        addRed(keyLabel, key, keyValidate)
+      }
 
-    keySubstitutionChange()
+      keySubstitutionChange()
+    } else {
+      removeRed(keyLabel, key, keyValidate)
+      removeGreen(keyLabel, key, keyValidate)
+      resetPlaintextAndCode()
+    }
   } else {
-    removeRed(keyLabel, key, keyValidate)
-    removeGreen(keyLabel, key, keyValidate)
-    resetPlaintextAndCode()
+    console.log("HAHA")
   }
 }
 
@@ -429,7 +433,7 @@ function copyPlaintext() {
 }
 
 
-// Substitution Cipher JS
+// Substitution Cipher
 function keySubstitutionChange() {
   const keyLabel = $('#key-label')
   const key = $('#key')
@@ -521,4 +525,220 @@ function encodeAndDecodeSubstitutionCipher() {
       keyValidateText.innerText = 'Please enter key@@@'
     }
   }
+}
+
+// Affine
+function getInvertible(key, Zx) {
+  let invertible = 0
+  for(let index = 0; index < Zx.length; index++) {
+    if((parseInt(key.value) * index) % Zx.length == 1) {
+      invertible = index
+      break
+    }
+  }
+  return invertible
+}
+
+function keyAffineAChange() {
+  const keyLabelA = $('#key-label-a')
+  const keyA = $('#key-affine-a')
+  const keyValidateA = $('#key-validate-a')
+  const keyValidateTextA = $('#key-validate-text-a')
+  const Zx = getZx()
+
+  let status = true
+  let message = ''
+
+  if(checkText(keyA)) {
+    if(keyA.value >= 0) {
+      let isInvertivle = getInvertible(keyA, Zx)
+      if(isInvertivle != 0) {
+        removeRed(keyLabelA, keyA, keyValidateA)
+        addGreen(keyLabelA, keyA, keyValidateA)
+        keyValidateTextA.innerText = 'Element a in valid!!!'
+      } else {
+        status = false
+        message = 'Element a has no inverse@@@'
+      }
+    } else {
+      if(keyA.value < 0) {
+        status = false
+        message= 'Element a cannot be negative@@@'
+      } else {
+        status = false
+        message= 'Element a is not valid@@@'
+      }
+    }
+  } else {
+    removeGreen(keyLabelA, keyA, keyValidateA)
+    removeRed(keyLabelA, keyA, keyValidateA)
+  }
+
+  if(!status) {
+    removeGreen(keyLabelA, keyA, keyValidateA)
+    addRed(keyLabelA, keyA, keyValidateA)
+    keyValidateTextA.innerText = message
+  }
+}
+
+function keyAffineBChange() {
+  const keyLabelB = $('#key-label-b')
+  const keyB = $('#key-affine-b')
+  const keyValidateB = $('#key-validate-b')
+  const keyValidateTextB = $('#key-validate-text-b')
+  const Zx = getZx()
+
+  let status = true
+  let message = ''
+
+  if(checkText(keyB)) {
+    if(keyB.value >= 0) {
+      let isInvertivle = checkKey(keyB, Zx)
+      if(isInvertivle != 0) {
+        removeRed(keyLabelB, keyB, keyValidateB)
+        addGreen(keyLabelB, keyB, keyValidateB)
+        keyValidateTextB.innerText = 'Element B in valid!!!'
+      } else {
+        status = false
+        message = 'Element B is not valid@@@'
+      }
+    } else {
+      if(keyB.value < 0) {
+        status = false
+        message= 'Element b cannot be negative@@@'
+      } else {
+        status = false
+        message= 'Element b is not valid@@@'
+      }
+    }
+  } else {
+    removeGreen(keyLabelB, keyB, keyValidateB)
+    removeRed(keyLabelB, keyB, keyValidateB)
+  }
+
+  if(!status) {
+    removeGreen(keyLabelB, keyB, keyValidateB)
+    addRed(keyLabelB, keyB, keyValidateB)
+    keyValidateTextB.innerText = message
+  }
+}
+
+function encodeAndDecodeAffine() {
+  const keyLabelA = $('#key-label-a')
+  const keyA = $('#key-affine-a')
+  const keyValidateA = $('#key-validate-a')
+  const keyValidateTextA = $('#key-validate-text-a')
+
+  const keyLabelB = $('#key-label-b')
+  const keyB = $('#key-affine-b')
+  const keyValidateB = $('#key-validate-b')
+  const keyValidateTextB = $('#key-validate-text-b')
+
+  const plaintextLabel = $('#plaintext-label')
+  const plaintextTextarea = $('#textarea-plaintext')
+  const plaintextValidate = $('#plaintext-validate')
+  const plaintextValidateText = $('#plaintext-validate-text')
+
+  const codeLabel = $('#code-label')
+  const codeTextarea = $('#textarea-code')
+  const codeValidate = $('#code-validate')
+  const codeValidateText = $('#code-validate-text')
+
+  const value = $('#type-encodeDecode').value
+  const Zx = getZx()
+
+  let isEmptyKey = checkText(keyA) && checkText(keyB)
+  if(value == 'encode') {
+    if(isEmptyKey) {
+      let validKey = (getInvertible(keyA, Zx) != 0) && checkKey(keyB)
+      if(validKey) {
+        let plaintextCheck = checkText(plaintextTextarea)
+        if(plaintextCheck) {
+          if(checkValidate(plaintextTextarea.value)) {
+            let Zx = getZx()
+            let code = encodeAffine(plaintextTextarea, keyA, keyB, Zx)
+            codeTextarea.value = code
+          } else {
+            plaintextTextarea.focus()
+          }
+        } else {
+          plaintextTextarea.focus()
+          removeGreen(plaintextLabel, plaintextTextarea, plaintextValidate)
+          addRed(plaintextLabel, plaintextTextarea, plaintextValidate)
+          plaintextValidateText.innerText = 'Please enter plaintext@@@'
+        }
+      } else {
+        if(!getInvertible(keyA, Zx)) {
+          keyA.focus()
+          removeRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+          addRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+          keyValidateTextA.innerText = 'Element a is not valid@@@'
+        } else {
+          keyB.focus()
+          removeRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+          addRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+          keyValidateTextB.innerText = 'Element b is not valid@@@'
+        }
+      }
+    } else {
+      if(!checkText(keyA)) {
+        keyA.focus()
+        removeRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+        addRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+        keyValidateTextA.innerText = 'Please enter element a of key {a, b}@@@'
+      } else {
+        keyB.focus()
+        removeRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+        addRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+        keyValidateTextB.innerText = 'Please enter element b of key {a, b}@@@'
+      }
+    }
+  } else {
+    if(isEmptyKey) {
+      let validKey = (getInvertible(keyA, Zx) != 0) && checkKey(keyB)
+      if(validKey) {
+        let codeCheck = checkText(codeTextarea)
+        if(codeCheck) {
+          if(checkValidate(codeTextarea.value)) {
+            let Zx = getZx()
+            let code = decodeAffine(codeTextarea, keyA, keyB, Zx)
+            plaintextTextarea.value = code
+          } else {
+            codeTextarea.focus()
+          }
+        } else {
+          codeTextarea.focus()
+          removeGreen(codeLabel, codeTextarea, codeValidate)
+          addRed(codeLabel, codeTextarea, codeValidate)
+          codeValidateText.innerText = 'Please enter code@@@'
+        }
+      } else {
+        if(!getInvertible(keyA, Zx)) {
+          keyA.focus()
+          removeRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+          addRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+          keyValidateTextA.innerText = 'Element a is not valid@@@'
+        } else {
+          keyB.focus()
+          removeRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+          addRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+          keyValidateTextB.innerText = 'Element b is not valid@@@'
+        }
+      }
+    } else {
+      if(!checkText(keyA)) {
+        keyA.focus()
+        removeRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+        addRed(keyLabelA, keyA, keyValidateA, keyValidateTextA)
+        keyValidateTextA.innerText = 'Please enter element a of key {a, b}@@@'
+      } else {
+        keyB.focus()
+        removeRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+        addRed(keyLabelB, keyB, keyValidateB, keyValidateTextB)
+        keyValidateTextB.innerText = 'Please enter element b of key {a, b}@@@'
+      }
+    }
+  }
+
+
 }
